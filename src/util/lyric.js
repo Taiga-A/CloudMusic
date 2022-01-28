@@ -5,7 +5,7 @@ class LyricItem {
   }
 }
 
-class Lyrics {
+export default class Lyrics {
   constructor(text = "") {
     let arr = text.split("\n");
     let row = arr.length; //获取歌词行数
@@ -29,13 +29,9 @@ class Lyrics {
 
   getIndex(time) {
     for(let i = 0; i < this.lyric.length; i++) {
-      if(time > this.lyric[i].time)
-        return i
+      if(time < this.lyric[i].time)
+        return i - 1
     }
-    return -1;
+    return this.lyric.length - 1;
   }
 }
-
-
-
-new Lyrics

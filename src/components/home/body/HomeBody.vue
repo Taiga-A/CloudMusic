@@ -1,12 +1,12 @@
 <template>
   <div class="home_body_content" ref="home_body">
     <PlayList
-      v-if="path[path.length-1] == 'lists'"
+      v-if="path.length == 1 && path[0] == 'lists'"
       :playList="playList"
       @play-list-click="choosePlayList"
     ></PlayList>
     <Plays
-      v-if="path[path.length-1] == 'plays'"
+      v-if="path.length > 1 && path[1] == 'plays'"
       :listInfo="chooseListInfo"
       @choose-music="chooseMusic"
     ></Plays>
@@ -39,7 +39,7 @@ export default {
   methods: {
     choosePlayList(info) {
       this.chooseListInfo = info;
-      this.path.push("plays");
+      this.$store.commit("pushBodyPath", "plays")
     },
     chooseMusic(row, thisMusicList) {
       this.$emit("choose-music", row, thisMusicList);

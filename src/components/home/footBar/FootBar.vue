@@ -1,6 +1,6 @@
 <template>
-  <div class="home_footbar_content">
-    <MusicDetail></MusicDetail>
+  <div class="home_footbar_content" :style="isDetail?'height:100%':'heging:80px'">
+    <MusicDetail v-if="isDetail" :musicData="musicData" :nowTime="nowRealTime" :id="musicData.id"></MusicDetail>
     <div class="menu">
       <div class="context">
         <el-image
@@ -29,7 +29,7 @@
           ></el-slider>
         </div>
         <div class="text">
-          <span>{{ `${formateTime(nowTime)} / ${formateTime(maxTime)}` }}</span>
+          <span>{{ times }}</span>
         </div>
       </div>
       <audio
@@ -48,7 +48,7 @@
 import FootBarPlayMenu from "./FootBarPlayMenu.vue";
 import MusicDetail from "./musicDetail/MusicDetal.vue"
 
-import { formatAuthor } from "@/util/formatter.js";
+import { formatAuthor, formateTime} from "@/util/formatter.js";
 import { getMusicById } from "@/networks/apis/playlist/playlist.js";
 
 import defultImage from "@/assets/defultImage.png";
@@ -78,6 +78,9 @@ export default {
     musicAuthors() {
       return this.musicData ? formatAuthor(this.musicData.ar) : "";
     },
+    times() {
+      return `${formateTime(this.nowTime)} / ${formateTime(this.maxTime)}`;
+    },
     nowTime: {
       get: function () {
         return parseInt(this.nowRealTime);
@@ -88,17 +91,21 @@ export default {
     },
   },
   methods: {
-    musicDetail() {},
+    musicDetail() {
+      if(!this.musicData)
+        this.isDetail = false
+      else
+        this.isDetail = !this.isDetail
+    },
     changeMusic(data) {
       this.musicData = data;
       this.nowTime = 0;
       getMusicById(data.id).then(({ data }) => {
         if (data[0].url == null) {
           this.$message({
-            message: "歌曲已失效,下一首",
+            message: "歌曲已失效",
             type: "warning",
           });
-          this.$emit("music-end");
           return;
         }
         this.audioSrc = data[0].url;
@@ -113,6 +120,7 @@ export default {
       this.nowTime = this.$refs.audio.currentTime;
     },
     changeIndex(dat) {
+      if(!this.musicData) return
       if (!dat) {
         if (this.isPlaying) this.$refs.audio.pause();
         else this.$refs.audio.play();
@@ -129,18 +137,7 @@ export default {
       this.nowTime = val;
       this.isChange = false;
     },
-    formateTime(time) {
-      if (isNaN(time)) return "00:00";
-      const h = parseInt(time / 3600);
-      const minute = parseInt((time / 60) % 60);
-      const second = Math.ceil(time % 60);
-
-      const hours = h < 10 ? "0" + h : h;
-      const formatSecond = second > 59 ? 59 : second;
-      return `${hours > 0 ? `${hours}:` : ""}${
-        minute < 10 ? "0" + minute : minute
-      }:${formatSecond < 10 ? "0" + formatSecond : formatSecond}`;
-    },
+    
     mouseOnSlider() {
       this.isChange = true;
     },
@@ -150,6 +147,7 @@ export default {
 
 <style>
 .home_footbar_content {
+  z-index: 10;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -174,7 +172,7 @@ export default {
 .home_footbar_content .context {
   position: absolute;
   display: flex;
-  left: 10px;
+  left: 15px;
   bottom: -30px;
 }
 
@@ -186,12 +184,13 @@ export default {
   width: 60px;
   height: 60px;
   cursor: pointer;
-  transition: all 0.5s ease-out;
+  transition: all 0.3s ease-out;
+  box-shadow: #666 0 0 2px;
 }
 
 .home_footbar_content .context img:hover {
   transform: scale(1.01);
-  box-shadow: #333 0 0 8px;
+  box-shadow: #666 0 0 5px;
 }
 
 .home_footbar_content .context span {

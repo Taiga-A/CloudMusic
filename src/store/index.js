@@ -40,7 +40,6 @@ export default createStore({
     popBodyPath(state) {
       if (state.body.path.length < 2)
         return
-      console.log(11111)
       state.body.path.pop()
     },
     changePlaying(state, isPlay) {
