@@ -9,7 +9,7 @@
       {{ $store.getters.userInfo.nickName }}
     </div>
     <div class="home_headbar_left">
-      <el-button @click="bodyBack">返回</el-button>
+      <el-button v-if="isShowReturn" @click="bodyBack">返回</el-button>
     </div>
   </div>
 </template>
@@ -21,6 +21,11 @@ export default {
     return {
       
     };
+  },
+  computed: {
+    isShowReturn() {
+      return (this.$store.getters.bodyPath.length > 1)
+    } 
   },
   methods: {
     bodyBack() {

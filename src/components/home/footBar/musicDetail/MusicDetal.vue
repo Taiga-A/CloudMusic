@@ -11,7 +11,6 @@
         <div class="author">{{ musicAuthors }}</div>
       </div>
     </div>
-    <!-- <el-divider direction="vertical" class="divider"></el-divider> -->
     <div class="lyric">
       <div class="point">
         <div class="lyric_content" :style="{ top: lyricTopPx + 'px' }">
@@ -22,9 +21,12 @@
               lyricInit: nowIndex == index,
               lyricNormal: nowIndex != index,
               lyricBoth: true,
+              lyricFY: lyric.haveFy,
+              lyricNoFY: !lyric.haveFy,
             }"
           >
-            {{ item.text }}
+            {{ item.text }}<br />
+            {{ item.fy }}
           </div>
         </div>
       </div>
@@ -46,7 +48,7 @@ export default {
   },
   data() {
     return {
-      lyric: { lyric: [] },
+      lyric: { lyric: [], haveFy: false },
     };
   },
   computed: {
@@ -55,19 +57,19 @@ export default {
     },
     nowIndex() {
       if (!(this.lyric instanceof Lyric)) return -1;
-      return this.lyric.getIndex(this.nowTime + 1);
+      return this.lyric.getIndex(this.nowTime + 0.1);
     },
     lyricTopPx() {
+      if (this.lyric.haveFy) return this.nowIndex * -120;
       return this.nowIndex * -80;
     },
   },
   watch: {
     id: {
       handler(newVal) {
-        console.log("change");
         if (newVal != 0)
           getLyric(newVal).then((res) => {
-            this.lyric = new Lyric(res.lrc.lyric);
+            this.lyric = new Lyric(res.lrc.lyric, res.tlyric && res.tlyric.lyric || "");
           });
       },
       immediate: true,
@@ -77,6 +79,14 @@ export default {
 </script>
 
 <style>
+:root {
+  --lyricFyBoxHeight: 120px;
+  --lyricNofyBoxHeight: 80px;
+
+  --lyricInitFontSize: 18px;
+  --lyricNormalFontSize: 16px;
+}
+
 .home_footbar_detial_content {
   position: relative;
   display: flex;
@@ -85,12 +95,14 @@ export default {
   height: calc(100% - 80px);
 }
 
+/***************************************************   详情 */
 .home_footbar_detial_content > .detial {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 40%;
+  margin-left: 30px;
 }
 
 .home_footbar_detial_content > .detial .img {
@@ -102,6 +114,7 @@ export default {
 
 .home_footbar_detial_content > .detial .text {
   text-align: center;
+  padding: 20px;
 }
 
 .home_footbar_detial_content > .detial .text .name {
@@ -113,10 +126,10 @@ export default {
   font-size: 14px;
   margin-top: 10px;
 }
-
+/***************************************************   歌词 */
 .home_footbar_detial_content > .lyric {
   width: 50%;
-  height: 85%;
+  height: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -127,6 +140,7 @@ export default {
 .home_footbar_detial_content > .lyric > .point {
   position: relative;
   width: 100%;
+  height: 30%;
 }
 
 .home_footbar_detial_content > .lyric .lyric_content {
@@ -135,45 +149,53 @@ export default {
   transition: all 0.5s ease-in-out;
 }
 
+/* 选中 */
 .home_footbar_detial_content > .lyric .lyricInit {
   animation-name: lyricInitAnm;
 }
 
+/* 共同 */
 .home_footbar_detial_content > .lyric .lyricBoth {
   text-align: center;
-  height: 80px;
   animation-duration: 0.4s;
   animation-fill-mode: both;
 }
 
+/* 普通 */
 .home_footbar_detial_content > .lyric .lyricNormal {
   animation-name: lyricOutitAnm;
 }
 
-.home_footbar_detial_content > .divider {
-  position: absolute;
-  left: 40%;
-  height: 100%;
+/* 翻译 */
+.home_footbar_detial_content > .lyric .lyricFY {
+  height: var(--lyricFyBoxHeight);
+  line-height: 35px;
+}
+
+/* 没翻译 */
+.home_footbar_detial_content > .lyric .lyricNoFY {
+  height: var(--lyricNofyBoxHeight);
 }
 
 @keyframes lyricOutitAnm {
   from {
-    font-size: 22px;
+    font-size: var(--lyricInitFontSize);
     color: #333;
   }
   to {
-    font-size: 16px;
+    font-size: var(--lyricNormalFontSize);
     color: #999;
   }
 }
 
 @keyframes lyricInitAnm {
   from {
-    /* font-size: 16px; */
+    font-size: var(--lyricNormalFontSize);
+    color: #999;
   }
   to {
-    font-size: 22px;
-    color: #333;
+    font-size: var(--lyricInitFontSize);
+    color: #222;
   }
 }
 </style>

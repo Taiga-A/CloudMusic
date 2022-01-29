@@ -10,7 +10,7 @@
           fit="cover"
         ></el-image>
         <div class="text">
-          {{ musicData ? musicData.name : "暂无更多" }}<br /><span>{{
+          {{ musicData ? musicName : "暂无更多" }}<br /><span>{{
             musicAuthors
           }}</span>
         </div>
@@ -75,6 +75,9 @@ export default {
     MusicDetail,
   },
   computed: {
+    musicName() {
+      return this.musicData.name.length > 30 ? this.musicData.name.slice(0, 30) + "..." : this.musicData.name
+    },
     musicAuthors() {
       return this.musicData ? formatAuthor(this.musicData.ar) : "";
     },
@@ -101,15 +104,18 @@ export default {
       this.musicData = data;
       this.nowTime = 0;
       getMusicById(data.id).then(({ data }) => {
-        if (data[0].url == null) {
+        if (!data || !data[0] || data[0].url == null) {
           this.$message({
             message: "歌曲已失效",
             type: "warning",
           });
+          this.$emit("music-end", 1);
           return;
         }
         this.audioSrc = data[0].url;
-      });
+      }).catch(err=>{
+        console.log(err)
+      })
     },
     audioCanPlay() {
       this.isPlaying = true;
@@ -159,7 +165,7 @@ export default {
 }
 
 .home_footbar_content > .menu {
-  border-top: #666 solid 0.25px;
+  border-top: #ddd solid 0.25px;
   flex-direction: column;
   align-items: center;
   position: absolute;

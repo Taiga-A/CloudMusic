@@ -20,7 +20,8 @@
         </div>
       </div>
       <el-divider content-position="center"></el-divider>
-      <el-table
+      <el-skeleton v-if="isLoading" class="loading" :rows="6" animated />
+      <el-table v-else
         :data="listData"
         stripe
         style="width: 100%"
@@ -55,7 +56,7 @@
 </template>
 
 <script>
-// import PlaysItem from "./PlaysItem.vue";
+
 
 import { getPlaysFromPlaylist } from "@/networks/apis/playlist/playlist.js";
 import {formatAuthor} from "@/util/formatter.js";
@@ -81,9 +82,6 @@ export default {
         date.getMonth() + 1
       }月${date.getDate()}日`;
     },
-  },
-  components: {
-    // PlaysItem,
   },
   methods: {
     onChooseMusic(row) {
@@ -129,6 +127,11 @@ export default {
   flex-direction: column;
   align-items: center;
   min-width: 700px;
+}
+
+.home_body_plays_content .main_context .loading {
+  padding: 10px 0 30px 0;
+  width: 90%;
 }
 
 .home_body_plays_content .playListInfo {
